@@ -27,7 +27,7 @@ ctrl = ['975557055860', '582268889106']
 
 
 groups_list = []
-groups_list.append(asd)
+groups_list.append(bip)
 groups_list.append(ctrl)
 
 groupnames_list = ['bip','cntrl']
