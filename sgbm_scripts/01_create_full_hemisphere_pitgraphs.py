@@ -10,9 +10,9 @@ import joblib
 
 
 # read parameters and subjects lists
-input_data_dir = '/riou/work/scalp/hpc/auzias/abide_db/abide_pits'
-root_analysis_dir = '/riou/work/scalp/hpc/auzias/sgbm'
-experiment = 'abide_jbhi_pits01'
+input_data_dir = '/hpc/scalp/data/BIPS_database/data_neurospin/processed/sulcal_pits'
+root_analysis_dir = '/hpc/nit/users/takerkart/sgbm_bip'
+experiment = 'nsbip_dev01'
 analysis_dir = op.join(root_analysis_dir, experiment)
 
 subjectslist_path = op.join(analysis_dir,'subjects_list.jl')
@@ -27,7 +27,7 @@ def compute_fullgraphs(hem):
     pitgraphs_dict = dict()
     for subject in subjects_list:
 
-        print subject
+        print(subject)
 
         # get basins texture (-1 in poles; everything 0 or above is a real basin with one pit)
         basins_tex_gii = ng.read(op.join(input_data_dir,subject,'%s_%s_%s_basinsTexture.gii' % (subject, hem, param_string)))
@@ -78,7 +78,7 @@ def compute_fullgraphs(hem):
         basins_tmp2_labels = basins_labels[:]
         basins_tmp2_labels.sort()
         if ( (len(basins_tmp1_labels) != len(basins_tmp2_labels)) or np.max(np.abs(np.array(basins_tmp1_labels)-np.array(basins_tmp2_labels)))):
-            print "Error: there's something weird with the pits and/or basins textures: %s and %s " % (pits_path, basins_path)
+            print("Error: there's something weird with the pits and/or basins textures: %s and %s " % (pits_path, basins_path))
 
 
 
@@ -89,7 +89,7 @@ def compute_fullgraphs(hem):
         for basin_ind, basin_label in enumerate(basins_labels):
             basins_submask.append(np.array(np.nonzero(basins_tex == basin_label))[0])
             basins_size.append(len(basins_submask[-1]))
-        #print basins_size
+        #print(basins_size)
         adjacency = np.zeros([n_basins, n_basins])
         for i in range(n_basins):
             for j in range(i):
