@@ -1,4 +1,4 @@
-import nibabel.gifti as ng
+import nibabel as nb
 import os
 import os.path as op
 import sys
@@ -10,7 +10,9 @@ import joblib
 
 
 # read parameters and subjects lists
-input_data_dir = '/hpc/scalp/data/BIPS_database/data_neurospin/processed/sulcal_pits'
+input_data_dir = '/hpc/scalp/data/BIPS_database/data_neurospin/processed'
+pits_subdir = 'sulcal_pits'
+mesh_subdir = 'gifti_converted'
 root_analysis_dir = '/hpc/nit/users/takerkart/sgbm_bip'
 experiment = 'nsbip_dev01'
 analysis_dir = op.join(root_analysis_dir, experiment)
@@ -24,31 +26,36 @@ params_path = op.join(analysis_dir,'pits_extraction_parameters.jl')
 
 def compute_fullgraphs(hem):
 
+    if hem == 'L':
+        fs_hem = 'lh'
+    elif hem == 'R':
+        fs_hem = 'rh'
+
     pitgraphs_dict = dict()
     for subject in subjects_list:
 
         print(subject)
 
         # get basins texture (-1 in poles; everything 0 or above is a real basin with one pit)
-        basins_tex_gii = ng.read(op.join(input_data_dir,subject,'%s_%s_%s_basinsTexture.gii' % (subject, hem, param_string)))
+        basins_tex_gii = nb.load(op.join(input_data_dir, pits_subdir, subject, '{}_{}white_basins.gii'.format(subject, hem)))
         basins_tex = basins_tex_gii.darrays[0].data
 
         # get pits texture (0 everywhere except single vertex with one where the pits are)
-        pits_tex_gii = ng.read(op.join(input_data_dir,subject,'%s_%s_%s_pitsTexture.gii' % (subject, hem, param_string)))#0050002_rh_D20R1.5A50_pitsTexture.gii
+        pits_tex_gii = nb.load(op.join(input_data_dir, pits_subdir, subject,'{}_{}white_pits.gii'.format(subject, hem))) #794288333904_Lwhite_pits.gii
         pits_tex = pits_tex_gii.darrays[0].data
         pits_inds = np.where(pits_tex)[0]
 
         # get area of basins
-        area_tex_gii = ng.read(op.join(input_data_dir,subject,'%s_%s_%s_areasTexture.gii' % (subject, hem, param_string)))#0050002_rh_D20R1.5A50_areasTexture.gii
-        area_tex = area_tex_gii.darrays[0].data
-        basins_area = area_tex[pits_inds]
+        #area_tex_gii = nb.load(op.join(input_data_dir,pits_subdir,subject,'%s_%s_%s_areasTexture.gii' % (subject, hem, param_string)))#0050002_rh_D20R1.5A50_areasTexture.gii
+        #area_tex = area_tex_gii.darrays[0].data
+        #basins_area = area_tex[pits_inds]
         # STt 2015/08/24 (first experiment with this: oasis_asymmetries_allgenders, abide_nyu), i.e after MEDIA submission
         # convert vector to matrix
-        basins_area = np.atleast_2d(basins_area).T
+        #basins_area = np.atleast_2d(basins_area).T
 
         # read triangulated spherical mesh and get coordinates of all vertices
-        mesh_path = op.join(input_data_dir,subject,'%s.sphere.reg.gii' % hem)
-        mesh_gii = ng.read(mesh_path)
+        mesh_path = op.join(input_data_dir,mesh_subdir,subject,'{}_{}.sphere.reg.gii'.format(subject, fs_hem))
+        mesh_gii = nb.load(mesh_path)
         mesh_coords = mesh_gii.darrays[0].data
         # convert cartesian coordinates into spherical coordinates
         ro = np.sqrt(np.sum(mesh_coords*mesh_coords,1))
@@ -101,8 +108,9 @@ def compute_fullgraphs(hem):
         np.fill_diagonal(adjacency,1.)
 
         # read depth of the pits
-        depth_path = op.join(input_data_dir,subject,'%s_%s_dpf_%s.gii' % (subject,hem,alpha) )#0050002_rh_dpf_0.03.gii
-        depth_gii = ng.read(depth_path)
+        depth_gii = nb.load(op.join(input_data_dir, pits_subdir, subject, '{}_{}white_DPF.gii'.format(subject, hem)))
+        #depth_path = op.join(input_data_dir,subject,'%s_%s_dpf_%s.gii' % (subject,hem,alpha) )#0050002_rh_dpf_0.03.gii
+        #depth_gii = nb.load(depth_path)
         depth_tex = depth_gii.darrays[0].data
         pits_depth = depth_tex[pits_inds]
         # STt 2015/08/24 (first experiment with this: oasis_asymmetries_allgenders, abide_nyu), i.e after MEDIA submission
@@ -110,19 +118,19 @@ def compute_fullgraphs(hem):
         pits_depth = np.atleast_2d(pits_depth).T
 
         # read thickness and compute mean thickness in basin
-        thickness_path = op.join(input_data_dir,subject,'%s.thickness.gii' % hem)
-        thickness_gii = ng.read(thickness_path)
-        thickness_tex = thickness_gii.darrays[0].data
-        basins_thickness = np.zeros(n_pits)
-        for basin_ind, basin_label in enumerate(basins_labels):
-            basin_inds = np.where(basins_tex == basin_label)[0]
-            basins_thickness[basin_ind] = np.mean(thickness_tex[basin_inds])
+        #thickness_path = op.join(input_data_dir,subject,'%s.thickness.gii' % hem)
+        #thickness_gii = nb.load(thickness_path)
+        #thickness_tex = thickness_gii.darrays[0].data
+        #basins_thickness = np.zeros(n_pits)
+        #for basin_ind, basin_label in enumerate(basins_labels):
+        #    basin_inds = np.where(basins_tex == basin_label)[0]
+        #    basins_thickness[basin_ind] = np.mean(thickness_tex[basin_inds])
         # STt 2015/08/24 (first experiment with this: oasis_asymmetries_allgenders, abide_nyu), i.e after MEDIA submission
         # convert vector to matrix
-        basins_thickness = np.atleast_2d(basins_thickness).T
+        #basins_thickness = np.atleast_2d(basins_thickness).T
 
         # now, we have everything, we can construct the pits graph!
-        g = graph.pitsgraph(adjacency, pits_3dcoords, pits_depth, basins_area, basins_thickness, pits_spherecoords)
+        g = graph.pitsgraph(adjacency, pits_3dcoords, pits_depth)
 
         # put all this in the pits dictionnary
         pitgraphs_dict[subject] = g
@@ -148,7 +156,7 @@ def main():
     # for just one hemisphere, run it as 'python 01_create_full_hemisphere_pitgraphs.py lh'
 
     if len(args) < 1:
-        hemispheres_list = ['lh','rh']
+        hemispheres_list = ['L','R']
     else:
         hem = args[0]
         hemispheres_list = [hem]
