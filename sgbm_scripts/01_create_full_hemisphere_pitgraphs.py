@@ -144,7 +144,7 @@ def compute_fullgraphs(hem):
         print('Output directory is %s' % fullgraphs_dir)
 
 
-    pitgraphs_path = op.join(fullgraphs_dir,'full_%s_pitgraphs.jl' % hem)
+    pitgraphs_path = op.join(fullgraphs_dir,'full_{}_pitgraphs.jl'.format(fs_hem))
     joblib.dump(pitgraphs_dict,pitgraphs_path,compress=3)
 
 

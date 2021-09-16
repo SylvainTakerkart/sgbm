@@ -3,15 +3,14 @@ import os
 import numpy as np
 import sys
 import joblib
-from sklearn.cross_validation import StratifiedKFold
 import scipy.spatial.distance as sd
 from pitskernel import sxdnewkernel
 
 
-root_analysis_dir = '/riou/work/scalp/hpc/auzias/sgbm'
+root_analysis_dir = '/hpc/nit/users/takerkart/sgbm_bip'
 
 
-def searchlight_compute_gram_matrices_singlefold_normalizedkernel(experiment, hem, graph_type, graph_param, n_sl_points, fold_ind, n_folds=10, subkernels_option=False):
+def searchlight_compute_gram_matrices_singlefold_normalizedkernel(experiment, hem, graph_type, graph_param, n_sl_points, fold_ind, n_folds=2, subkernels_option=False):
     analysis_dir = op.join(root_analysis_dir, experiment)
 
     if subkernels_option:
@@ -51,7 +50,7 @@ def searchlight_compute_gram_matrices_singlefold_normalizedkernel(experiment, he
     # work on this fold only!
     train_inds = train_inds_list[fold_ind]
     test_inds = test_inds_list[fold_ind]
-    print 'Working on fold %d of %d' % (fold_ind+1,n_folds)
+    print('Working on fold %d of %d' % (fold_ind+1,n_folds))
 
     sigma_depth_vals = []
     sigma_coords_vals = []
@@ -68,7 +67,7 @@ def searchlight_compute_gram_matrices_singlefold_normalizedkernel(experiment, he
         ##
         # Estimating sigma values
         ##
-        print 'Estimating sigma values for point %d of %d' % (center_ind+1,n_sl_points)
+        print('Estimating sigma values for point %d of %d' % (center_ind+1,n_sl_points))
         for i_ind, i in enumerate(train_inds):
             if i_ind == 0:
                 all_depth = localgraphs_list[i].D
@@ -83,22 +82,22 @@ def searchlight_compute_gram_matrices_singlefold_normalizedkernel(experiment, he
         ##
         # Computing gram matrix
         ##
-        print 'Computing gram matrix for point %d of %d' % (center_ind+1,n_sl_points)
+        print('Computing gram matrix for point %d of %d' % (center_ind+1,n_sl_points))
         sigma_coords = sigma_coords_vals[-1]
         sigma_depth = sigma_depth_vals[-1]
         kernel = sxdnewkernel(x_sigma = sigma_coords, d_sigma = sigma_depth, subkernels=subkernels_option)
-        print '     searchlight location %d of %d' % (point_ind,n_sl_points)
+        print('     searchlight location %d of %d' % (point_ind,n_sl_points))
         for i_ind,i in enumerate(train_inds):
             for j_ind,j in enumerate(train_inds[:i_ind+1]):
                 allK_train[point_ind,i_ind,j_ind,:] = kernel.evaluate(localgraphs_list[i],localgraphs_list[j])
                 allK_train[point_ind,j_ind,i_ind,:] = allK_train[point_ind,i_ind,j_ind,:]
-                #print localgraphs_list[i].D
-                #print localgraphs_list[j].D
-                #print i,j,allK_train[point_ind,i_ind,j_ind,:]
+                #print(localgraphs_list[i].D)
+                #print(localgraphs_list[j].D)
+                #print(i,j,allK_train[point_ind,i_ind,j_ind,:])
             for j_ind, j in enumerate(test_inds):
-                #print i,j
-                #print localgraphs_list[i].D
-                #print localgraphs_list[j].D
+                #print(i,j)
+                #print(localgraphs_list[i].D)
+                #print(localgraphs_list[j].D)
                 allK_test[point_ind,j_ind,i_ind,:] = kernel.evaluate(localgraphs_list[i],localgraphs_list[j])
         for j_ind, j in enumerate(test_inds):
             allK_testdiagonal[point_ind,j_ind,:] = kernel.evaluate(localgraphs_list[j],localgraphs_list[j])
@@ -118,9 +117,9 @@ def searchlight_compute_gram_matrices_singlefold_normalizedkernel(experiment, he
 def main():
     args = sys.argv[1:]
     if len(args) < 6:
-	print "Wrong number of arguments"
-	#usage()
-	sys.exit(2)
+        print("Wrong number of arguments")
+        #usage()
+        sys.exit(2)
     else:
         experiment = args[0]
         hem = args[1]
