@@ -1,16 +1,15 @@
-import nibabel.gifti as ng
 import os.path as op
 import os
 import numpy as np
 import sys
 import graph
 import joblib
-from sklearn.cross_validation import StratifiedKFold
+from sklearn.model_selection import StratifiedKFold
 
 
 # read parameters and subjects lists
-root_analysis_dir = '/riou/work/scalp/hpc/auzias/sgbm'
-experiment = 'abide_jbhi_pits01'
+root_analysis_dir = '/hpc/nit/users/takerkart/sgbm_bip'
+experiment = 'nsbip_dev01'
 analysis_dir = op.join(root_analysis_dir, experiment)
 
 sampleslist_path = op.join(analysis_dir,'samples_list.jl')
@@ -32,12 +31,16 @@ def create_xval_indices(n_folds):
         print('Output directory is %s' % xval_dir)
     xval_path = op.join(xval_dir,'stratified_%02dfold_inds.jl' % n_folds)
         # create xval object and save all train and test indices
-    skf_xval_orig = StratifiedKFold(y, n_folds=n_folds)
+    skf_xval_orig = StratifiedKFold(n_splits=n_folds)
     train_inds_list = []
     test_inds_list = []
-    for (train_inds, test_inds) in skf_xval_orig:
+    #for (train_inds, test_inds) in skf_xval_orig:
+    #    train_inds_list.append(train_inds)
+    #    test_inds_list.append(test_inds)
+    for train_inds, test_inds in skf_xval_orig.split(y, y):
         train_inds_list.append(train_inds)
         test_inds_list.append(test_inds)
+        
     print('Saving cross-validation indices to %s' % xval_path)
     joblib.dump([train_inds_list,test_inds_list],xval_path,compress=3)
 

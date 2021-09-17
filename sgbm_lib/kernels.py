@@ -112,21 +112,21 @@ if __name__ == "__main__":
     u = random.uniform(0,1,(10,5))
     v = random.uniform(0,1,(5,5))
 
-    print u.shape
-    print v.shape
+    print(u.shape)
+    print(v.shape)
 
     k = gaussian()
 
-    print 'noyau entre u et v'
-    print k.evaluate(u,v)
+    print('noyau entre u et v')
+    print(k.evaluate(u,v))
 
-    print 'matrice de gram'
-    print k.gram(u)
+    print('matrice de gram')
+    print(k.gram(u))
 
-    kpoly =polynomial()
+    kpoly = polynomial()
 
-    print 'noyau entre u et v'
-    print kpoly.evaluate(u,v)
+    print('noyau entre u et v')
+    print(kpoly.evaluate(u,v))
 
-    print 'matrice de gram'
-    print kpoly.gram(u)
+    print('matrice de gram')
+    print(kpoly.gram(u))

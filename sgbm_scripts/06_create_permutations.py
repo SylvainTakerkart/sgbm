@@ -7,8 +7,8 @@ import joblib
 
 
 # read parameters and subjects lists
-root_analysis_dir = '/riou/work/scalp/hpc/auzias/sgbm'
-experiment = 'abide_jbhi_pits01'
+root_analysis_dir = '/hpc/nit/users/takerkart/sgbm_bip'
+experiment = 'nsbip_dev01'
 analysis_dir = op.join(root_analysis_dir, experiment)
 
 sampleslist_path = op.join(analysis_dir,'samples_list.jl')
@@ -68,8 +68,8 @@ def create_permuted_labels_within_xval_folds(n_permuts,n_folds):
 def main():
     args = sys.argv[1:]
     if len(args) < 1:
-        n_permuts = 20000
-        n_folds = 10
+        n_permuts = 50
+        n_folds = 2
     else:
         n_permuts = int(args[0])
         n_folds = int(args[1])

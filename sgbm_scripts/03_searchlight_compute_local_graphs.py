@@ -1,21 +1,17 @@
-import nibabel.gifti as ng
 import os.path as op
 import os
 import numpy as np
 import sys
 import graph
 import joblib
-from sklearn.cross_validation import StratifiedKFold
-from sklearn.svm import SVC
-from sklearn.metrics import accuracy_score
 import scipy.spatial.distance as sd
 
 import matplotlib.pyplot as plt
 
 
 # read parameters and subjects lists
-root_analysis_dir = '/riou/work/scalp/hpc/auzias/sgbm'
-experiment = 'abide_jbhi_pits01'
+root_analysis_dir = '/hpc/nit/users/takerkart/sgbm_bip'
+experiment = 'nsbip_dev01'
 analysis_dir = op.join(root_analysis_dir, experiment)
 
 
@@ -36,7 +32,7 @@ def compute_localgraphs(graph_type, graph_param, hem, n_sl_points):
     # reading all info
     ##################
 
-    print 'Reading things from disk (positions of searchlight points, full pits-graphs etc.)'
+    print('Reading things from disk (positions of searchlight points, full pits-graphs etc.)')
 
     # reading points where the searchlight will be performed
     spheresampling_dir = op.join(analysis_dir,'searchlight','sphere_sampling')
@@ -66,11 +62,11 @@ def compute_localgraphs(graph_type, graph_param, hem, n_sl_points):
     except:
         print('Output directory is %s' % localgraphs_dir)
 
-    print 'Compute all local graphs'
+    print('Compute all local graphs')
 
     for point_ind in sl_points_inds:
         current_center = sl_points[point_ind,:] * 100
-        print point_ind
+        print(point_ind)
         localgraphs_list = []
         for n, subject in enumerate(samples_subjects_list):
             fullgraph = pitgraphs_dict[subject]
@@ -121,17 +117,18 @@ def main():
 
     
     if len(args) < 2:
-	print "Wrong number of arguments, run it as: %run 03_searchlight_compute_local_graphs lh radius 2500"
-	sys.exit(2)
+        print("Wrong number of arguments, run it as: %run 03_searchlight_compute_local_graphs lh radius 2500")
+        sys.exit(2)
     else:
         hem = args[0]
         graph_type = args[1]
         n_sl_points = int(args[2])
 
     graph_param_list = np.arange(30,92,5)
+    graph_param_list = [50]
 
     for graph_param in graph_param_list:
-        print graph_param
+        print(graph_param)
         compute_localgraphs(graph_type, graph_param, hem, n_sl_points)
     
 

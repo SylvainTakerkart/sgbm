@@ -7,7 +7,7 @@ from sklearn.svm import SVC
 from sklearn.metrics import accuracy_score
 
 
-root_analysis_dir = '/riou/work/scalp/hpc/auzias/sgbm'
+root_analysis_dir = '/hpc/nit/users/takerkart/sgbm_bip'
 
 
 '''
@@ -47,7 +47,7 @@ def permuted_searchlight_classif(experiment, hem, graph_type, graph_param, n_sl_
     #############################
     permutations_dir = op.join(analysis_dir,'permutations')
     permutations_path = op.join(permutations_dir,'permuted_labels_xval%02dfolds.jl' % n_folds)
-    print 'Reading all permuted labels from %s' % permutations_path
+    print('Reading all permuted labels from %s' % permutations_path)
     [y_train_permuted_list,y_test_permuted_list] = joblib.load(permutations_path)
 
     # test if there are enough permutations in this file as compared to what is asked here
@@ -63,22 +63,22 @@ def permuted_searchlight_classif(experiment, hem, graph_type, graph_param, n_sl_
     # start xval
     ############
     for fold_ind in range(n_folds):
-        print 'Starting fold %d of %d' % (fold_ind+1,n_folds)
+        print('Starting fold %d of %d' % (fold_ind+1,n_folds))
         ##################################
         # load gram matrices for this fold
         ##################################
         #gram_path = op.join(gram_dir,'K_%s_autosigmas_fold%02dof%02d.jl' % (hem,fold_ind+1,n_folds))
         gram_path = op.join(gram_dir,'K_%s_sigmasheur_fold%02dof%02d.jl' % (hem,fold_ind+1,n_folds))
-        print '   Reading gram matrices in %s' % gram_path
+        print('   Reading gram matrices in %s' % gram_path)
         [allK_train,allK_test,allK_testdiagonal,sigma_coords_vals,sigma_depth_vals] = joblib.load(gram_path)
 
 
         #####################
         # do permuted classif
         #####################
-        print '   Starting SVM with permuted labels'
+        print('   Starting SVM with permuted labels')
         for point_ind in range(n_sl_points):
-            print '     Searchligh location %d of %d' % (point_ind+1, n_sl_points)
+            print('     Searchligh location %d of %d' % (point_ind+1, n_sl_points))
             #t1 = time.time()
             # extract training gram matrix
             K_train = allK_train[point_ind,:,:,0]
@@ -93,7 +93,7 @@ def permuted_searchlight_classif(experiment, hem, graph_type, graph_param, n_sl_
                     else:
                         # else put the min value in place of the zeros...
                         diag[zero_inds] = np.min(diag[~zero_inds])
-                #print diag
+                #print(diag)
                 diagmat = np.tile(diag,[K_train.shape[0],1])
                 normmat = np.multiply(1./np.sqrt(diagmat),1./np.sqrt(diagmat).T)
                 K_train = np.multiply(K_train,normmat)
@@ -103,7 +103,7 @@ def permuted_searchlight_classif(experiment, hem, graph_type, graph_param, n_sl_
                 # normalisation of the diagonal terms
                 Ktestdiagonal = allK_testdiagonal[point_ind,:,0]
                 # in case there is a zero on the diagonal, trick it a bit...
-                #print Ktestdiagonal
+                #print(Ktestdiagonal)
                 if 0. in Ktestdiagonal:
                     zero_inds = (Ktestdiagonal == 0)
                     if np.sum(zero_inds) == len(Ktestdiagonal):
@@ -115,7 +115,7 @@ def permuted_searchlight_classif(experiment, hem, graph_type, graph_param, n_sl_
                 normmat = np.multiply(1./np.sqrt(diagmat),1./np.sqrt(testdiagmat))
                 K_test = np.multiply(K_test,normmat)
             for perm_ind in range(n_permuts):
-                #print '     Permutation %d of %d' % (perm_ind+1, n_permuts)
+                #print('     Permutation %d of %d' % (perm_ind+1, n_permuts))
                 y_train_permuted = y_train_permuted_list[fold_ind][perm_ind]
                 y_test_permuted = y_test_permuted_list[fold_ind][perm_ind]
                 g_svc = SVC(kernel='precomputed',C=C)
@@ -123,7 +123,7 @@ def permuted_searchlight_classif(experiment, hem, graph_type, graph_param, n_sl_
                 guesses = g_svc.predict(K_test)
                 skf_scores_permuted[fold_ind, point_ind, perm_ind] = accuracy_score(y_test_permuted,guesses)
             #t2 = time.time()
-            #print t2-t1
+            #print(t2-t1)
 
 
     ################
@@ -136,7 +136,7 @@ def permuted_searchlight_classif(experiment, hem, graph_type, graph_param, n_sl_
     except:
         print('Output directory is %s' % res_dir)
     res_path = op.join(res_dir,'%s.classif_res_%dpermuts_xval%02dfolds_diagnorm%s_C1e%d.jl' % (hem,n_permuts,n_folds,str(diagnorm_option).lower(),np.int(np.log10(C))))
-    print 'Saving all results in %s' % res_path
+    print('Saving all results in %s' % res_path)
     joblib.dump(skf_scores_permuted,res_path,compress=3)
 
 
@@ -145,9 +145,9 @@ def permuted_searchlight_classif(experiment, hem, graph_type, graph_param, n_sl_
 def main():
     args = sys.argv[1:]
     if len(args) < 4:
-	print "Wrong number of arguments"
-	#usage()
-	sys.exit(2)
+        print("Wrong number of arguments")
+        #usage()
+        sys.exit(2)
     else:
         experiment = args[0]
         hem = args[1]
@@ -156,7 +156,7 @@ def main():
         n_sl_points = int(args[4])
         n_permuts = int(args[5])
 
-    n_folds = 10
+    n_folds = 2
     permuted_searchlight_classif(experiment, hem, graph_type, graph_param, n_sl_points, n_folds, n_permuts, C=1., subkernels_option = False, diagnorm_option = True)
 
 

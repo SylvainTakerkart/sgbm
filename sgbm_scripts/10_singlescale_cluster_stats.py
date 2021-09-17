@@ -59,7 +59,7 @@ def singlescale_cluster_stat(experiment, hem, graph_type, n_sl_points, n_permuts
                                'pointstats',
                                'sl_%s_points_%dpermuts' % (n_sl_points,n_permuts))
         pointstat_path = op.join(pointres_dir,'%s.pointstat_%s_cortex%sscaling_permuted.%s_%d.jl' % (hem,pointstat,cortex_scaling,graph_type,graph_param))
-        print pointstat_path
+        print(pointstat_path)
         pointstat_permuted = joblib.load(pointstat_path)
         all_pointstat_permuted.append(pointstat_permuted)
 
@@ -77,19 +77,19 @@ def singlescale_cluster_stat(experiment, hem, graph_type, n_sl_points, n_permuts
     if thresholdtype == 'pointstat':
         allscales_tothreshold_permuted = all_pointstat_permuted
     elif thresholdtype == 'permutedproba':
-        print "Depreciated option thresholdtype = permutedproba"
+        print("Depreciated option thresholdtype = permutedproba")
         exit()
         '''
         allscales_cdf_permuted = []
         for graph_param in graph_param_list:
-            print graph_param
+            print(graph_param)
             res_dir = op.join(analysis_dir,'searchlight','%s_based' % graph_type,'permuted_classif_res', '%s_%d' % (graph_type, graph_param), 'sl_%s_points' % n_sl_points)
             cdf_path = op.join(res_dir,'%s.pointcdf_classifscorenoscaling_%dpermuts.jl' % (hem,n_permuts))
             [point_cdf_permuted,C_list] = joblib.load(cdf_path)
             # reduce to only one value of C
             allscales_cdf_permuted.append(point_cdf_permuted[:,c_ind,:])
         allscales_tothreshold_permuted = np.array(allscales_cdf_permuted)
-        print allscales_tothreshold_permuted.max()
+        print(allscales_tothreshold_permuted.max())
         '''
 
 
@@ -107,18 +107,18 @@ def singlescale_cluster_stat(experiment, hem, graph_type, n_sl_points, n_permuts
         thisscale_clusterMassesList = []
         for perm_ind in range(n_permuts):
         #for perm_ind in range(3):
-            print g_ind, perm_ind
+            print(g_ind, perm_ind)
             # use allscales_tothreshold_permuted to give the clusters (clusterLabels), but do not use automatically the returned clusterMasses
             clusterLabels, clusterMasses = get_clusters(allscales_tothreshold_permuted[g_ind,:,perm_ind], connMatrix, threshold)
             # now, compute the clusterMasses using the all_pointstat_permuted variable! only if they're different!
             '''
             if thresholdtype != 'pointstat':
                 # should loop over np.unique(clusterLabels) or something like that...
-                print "Not implemented yet"
+                print("Not implemented yet")
                 exit()
             '''
             if perm_ind == 0:
-                print clusterLabels, clusterMasses
+                print(clusterLabels, clusterMasses)
                 trueClusterLabelsList.append(np.array(clusterLabels))
                 trueClusterMassesList.append(np.array(clusterMasses))
             if len(clusterMasses):
@@ -149,13 +149,13 @@ def singlescale_cluster_stat(experiment, hem, graph_type, n_sl_points, n_permuts
     sortedMaxClusterStatsList.sort(reverse=True)
     criticalMass = sortedMaxClusterStatsList[criticalInd-1] # with -1 because indexing starts at zero
 
-    #print np.unique(trueClusterLabelsList)
-    #print len(trueClusterMassesList)
+    #print(np.unique(trueClusterLabelsList))
+    #print(len(trueClusterMassesList))
 
-    print trueClusterMassesList
-    print MScorrectedClusterProbasList
+    print(trueClusterMassesList)
+    print(MScorrectedClusterProbasList)
 
-    print criticalMass
+    print(criticalMass)
 
     significantClusterIndsList = []
     significantClusterProbasList = []
@@ -217,7 +217,7 @@ def singlescale_cluster_stat(experiment, hem, graph_type, n_sl_points, n_permuts
         #load classif scores to create textures
         in_dir = op.join(analysis_dir,'searchlight','%s_based' % graph_type,'permuted_classif_res', '%s_%d' % (graph_type, graph_param), 'sl_%s_points' % n_sl_points)
         proba_path = op.join(in_dir,'%s.pointstat_%s_cortexnoscaling_%dpermuts.jl' % (hem,pointstat,n_permuts))
-        #print 'Saving all results in %s' % proba_path
+        #print('Saving all results in %s' % proba_path)
         avg_skf_scores_permuted = joblib.load(proba_path)
         avg_skf_scores_permuted = avg_skf_scores_permuted[:,0]
         '''
@@ -351,8 +351,8 @@ def singlescale_cluster_stat(experiment, hem, graph_type, n_sl_points, n_permuts
 def main():
     args = sys.argv[1:]
     if len(args) < 6:
-	print "Wrong number of arguments"
-	#usage()
+        print("Wrong number of arguments")
+        #usage()
 	sys.exit(2)
     else:
         experiment = args[0]

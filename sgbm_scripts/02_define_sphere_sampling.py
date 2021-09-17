@@ -6,8 +6,8 @@ import joblib
 import scipy.spatial.distance as sd
 
 # read parameters and subjects lists
-root_analysis_dir = '/riou/work/scalp/hpc/auzias/sgbm'
-experiment = 'abide_jbhi_pits01'
+root_analysis_dir = '/hpc/nit/users/takerkart/sgbm_bip'
+experiment = 'nsbip_dev01'
 analysis_dir = op.join(root_analysis_dir, experiment)
 
 
@@ -46,22 +46,22 @@ def define_fibonacci_points(hem, n_sl_points, radius=100):
     # keep only the points that have one pit close-by (radius)
     points_count = np.zeros(n_sl_points)
     for subj_ind, subject in enumerate(subjects_list):
-        #print subject
+        #print(subject)
         pits_3dcoords = pitgraphs_dict[subject].X
         for point_ind in range(n_sl_points):
             current_point = sl_points[point_ind,:] * 100
             # compute distances between this point and all the pits
             distances = sd.cdist(current_point[np.newaxis,:],pits_3dcoords).squeeze()
-            #print distances.shape
+            #print(distances.shape)
             point_pits_min_distance = distances.min()
-            #print point_pits_min_distance
+            #print(point_pits_min_distance)
             if point_pits_min_distance > radius:
                 # this is a bad point!
                 points_count[point_ind] = points_count[point_ind] + 1
     
     # keep only the points for which a pit is close by!
     sl_points_inds = np.where(points_count==0)[0]
-    print len(sl_points_inds)
+    print(len(sl_points_inds))
 
     # if the radius is large enough, all points should be valid! in that case, do not mention
     # the radius in the filename
@@ -84,16 +84,16 @@ def define_fibonacci_points(hem, n_sl_points, radius=100):
 
 def main():
     args = sys.argv[1:]
-
+    print(args)
     
     if len(args) < 2:
-	print "Wrong number of arguments, run it as: %run 02_define_sphere_sampling.py lh 2500"
-	#usage()
-	sys.exit(2)
+        print("Wrong number of arguments, run it as: %run 02_define_sphere_sampling.py lh 2500")
+        #usage()
+        sys.exit(2)
     else:
         hem = args[0]
         n_sl_points = int(args[1])
-        
+
     define_fibonacci_points(hem, n_sl_points)
 
 if __name__ == "__main__":
