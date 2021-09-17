@@ -45,7 +45,7 @@ def multiscale_cluster_stat(experiment, hem, graph_type, n_sl_points, n_permuts,
     ###############################
     all_pointstat_permuted = []
     for graph_param in graph_param_list:
-        print graph_param
+        print(graph_param)
         res_dir = op.join(analysis_dir,'searchlight','%s_based' % graph_type,'permuted_classif_res', '%s_%d' % (graph_type, graph_param), 'sl_%s_points' % n_sl_points)
         pointstat_path = op.join(res_dir,'%s.pointstat_%s_cortex%sscaling_%dpermuts.jl' % (hem,pointstat,cortex_scaling,n_permuts))
         [pointstat_permuted,C_list] = joblib.load(pointstat_path)
@@ -70,7 +70,7 @@ def multiscale_cluster_stat(experiment, hem, graph_type, n_sl_points, n_permuts,
                                'pointstats',
                                'sl_%s_points_%dpermuts' % (n_sl_points,n_permuts))
         pointstat_path = op.join(pointres_dir,'%s.pointstat_%s_cortex%sscaling_permuted.%s_%d.jl' % (hem,pointstat,cortex_scaling,graph_type,graph_param))
-        print pointstat_path
+        print(pointstat_path)
         pointstat_permuted = joblib.load(pointstat_path)
         all_pointstat_permuted.append(pointstat_permuted)
 
@@ -92,7 +92,7 @@ def multiscale_cluster_stat(experiment, hem, graph_type, n_sl_points, n_permuts,
         all_mean_stats[scale,:,:] = all_pointstat_permuted[scale:(scale+n_scales),:,:].mean(0)
     
     all_max_stats = np.nanmax(all_mean_stats,0)
-    print all_max_stats
+    print(all_max_stats)
 
 
     #### there is a bug here!!!!!!!! this overevaluates the optimal scale by 5mm systematically for n_scales impair!! (dunno what happens for n_scales pair)
@@ -109,7 +109,7 @@ def multiscale_cluster_stat(experiment, hem, graph_type, n_sl_points, n_permuts,
     maxClusterStatList = []
     for perm_ind in range(n_permuts):
     #for perm_ind in range(3):
-        print perm_ind
+        print(perm_ind)
         clusterLabels, clusterMasses = get_clusters(all_max_stats[:,perm_ind], connMatrix, threshold)
         if len(clusterMasses):
             if perm_ind == 0:
@@ -130,10 +130,10 @@ def multiscale_cluster_stat(experiment, hem, graph_type, n_sl_points, n_permuts,
         
 
     # compute critical cluster mass
-    print len(maxClusterStatList)
+    print(len(maxClusterStatList))
     correctedThreshold = 0.05
     criticalInd = int(np.floor(correctedThreshold*len(maxClusterStatList))) + 1
-    print "criticalInd", criticalInd
+    print("criticalInd", criticalInd)
     sortedMaxClusterStatsList = list(maxClusterStatList)
     sortedMaxClusterStatsList.sort(reverse=True)
     if len(sortedMaxClusterStatsList):
@@ -141,12 +141,12 @@ def multiscale_cluster_stat(experiment, hem, graph_type, n_sl_points, n_permuts,
     else:
         criticalMass = np.inf
 
-    print np.unique(trueClusterLabels)
-    print len(trueClusterMasses)
-    print trueClusterMasses
-    print correctedClusterProbas
+    print(np.unique(trueClusterLabels))
+    print(len(trueClusterMasses))
+    print(trueClusterMasses)
+    print(correctedClusterProbas)
 
-    print criticalMass
+    print(criticalMass)
 
     significantClusterInds = np.where(correctedClusterProbas<correctedThreshold)[0]
     significantClusterProbas = correctedClusterProbas[significantClusterInds]
@@ -283,8 +283,8 @@ def multiscale_cluster_stat(experiment, hem, graph_type, n_sl_points, n_permuts,
 def main():
     args = sys.argv[1:]
     if len(args) < 6:
-	print "Wrong number of arguments"
-	#usage()
+        print "Wrong number of arguments"
+        #usage()
 	sys.exit(2)
     else:
         experiment = args[0]

@@ -59,15 +59,15 @@ def point_stat(experiment, hem, graph_type, graph_param, n_sl_points, n_permuts,
     #for point_ind in range(n_sl_points):
     for point_ind in fullcortex_inds:
         t1 = time.time()
-        print point_ind
+        print(point_ind)
         for perm_ind in range(n_permuts):
         #for perm_ind in range(3):
-            #print point_ind, perm_ind
+            #print(point_ind, perm_ind)
             this_score = avg_skf_scores_permuted[point_ind,perm_ind]
             point_cdf_fullcortex_permuted[point_ind,perm_ind] = \
                 len(np.where(permuted_avg_scores_fullcortex>=this_score)[0])
         t2 = time.time()
-        print t2-t1
+        print(t2-t1)
 
     point_cdf_fullcortex_permuted = 1. - (point_cdf_fullcortex_permuted.astype(np.float) / n_permuts_fullcortex)
 
@@ -93,7 +93,7 @@ def point_stat(experiment, hem, graph_type, graph_param, n_sl_points, n_permuts,
     # save summary stuff: probas (estimated with permutations), zscores and avg classif scores (all 3: only for true labels, i.e permutation number 0)
     point_probas = 1. - point_cdf_permuted[:,:,0]
     proba_path = op.join(res_dir,'%s.true_pointproba_zscore_avgclassifscore_%dpermuts.jl' % (hem,n_permuts))
-    print 'Saving all results in %s' % proba_path
+    print('Saving all results in %s' % proba_path)
     joblib.dump([point_probas,point_zscore_permuted[:,:,0],avg_skf_scores_permuted[:,:,0],C_list],proba_path,compress=3)
     '''
 
@@ -114,7 +114,7 @@ def point_stat(experiment, hem, graph_type, graph_param, n_sl_points, n_permuts,
 
     # save zprobasfullcortex (without cortex-z-scaling) including the surrogate ones
     fullzproba_path = op.join(pointres_dir,'%s.pointstat_classifscorezprobafullcortex_cortexnoscaling_permuted.%s_%d.jl' % (hem,graph_type,graph_param))
-    print 'Saving all point z-probas with fullcortex distribution in %s' % fullzproba_path
+    print('Saving all point z-probas with fullcortex distribution in %s' % fullzproba_path)
     joblib.dump(point_zproba_fullcortex_permuted,fullzproba_path,compress=3)
 
     # read texture of the pole mask, to be excluded from further analyses... (cluster stats & co)
@@ -144,8 +144,8 @@ def main():
     
     args = sys.argv[1:]
     if len(args) < 5:
-	print "Wrong number of arguments"
-	#usage()
+        print("Wrong number of arguments")
+        #usage()
 	sys.exit(2)
     else:
         experiment = args[0]
